@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">KeyboardSample</string>
+    <string name="spam">
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+        abcdefghijklmnopqrstuvwxyz\n\n
+    </string>
+</resources>

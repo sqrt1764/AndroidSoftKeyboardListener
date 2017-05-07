@@ -1,0 +1,33 @@
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Eclipse project files
+.classpath
+.project
+
+# Android Studio
+.idea/
+.gradle
+/*/local.properties
+/*/build
+*.iws
+*.ipr
+*~
+*.swp
+*.iml
+build
+app/app.iml
+/captures
+
+#mac
+.DS_Store
