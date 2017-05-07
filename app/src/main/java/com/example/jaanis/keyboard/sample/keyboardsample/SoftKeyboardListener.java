@@ -49,6 +49,13 @@ import java.util.List;
  */
 public class SoftKeyboardListener {
 
+    private Callback mInternalCallback = new Callback() {
+        @Override
+        public void onShowingRefreshed(boolean isShowing) {
+            mIsShowing = isShowing;
+            mCallback.onShowingRefreshed(mIsShowing);
+        }
+    };
     private Callback mCallback;
 
     private InputMethodManager mImm;
@@ -56,6 +63,7 @@ public class SoftKeyboardListener {
     private List<View> mTrackedViews = new ArrayList<>();
     private View mDefaultFocusView = null;
     private ResultReceiver mShowHideIMEResultReceiver = null;
+    private boolean mIsShowing = false;
 
     /**
      * @param callback callback you want executed when the showing refreshes/changes
@@ -82,7 +90,7 @@ public class SoftKeyboardListener {
 
         mDefaultFocusView = defaultFocusView;
 
-        mShowHideIMEResultReceiver = new ResultReceiverImpl(mHandler, mCallback);
+        mShowHideIMEResultReceiver = new ResultReceiverImpl(mHandler, mInternalCallback);
     }
 
     /**
@@ -145,7 +153,7 @@ public class SoftKeyboardListener {
      * @return is soft-keyboard showing for a tracked view
      */
     public boolean isKeyboardShowing() {
-        return findFocusedView() != null;
+        return mIsShowing;
     }
 
     /**
@@ -222,7 +230,7 @@ public class SoftKeyboardListener {
                     }
                 } else {
                     //nothing focused - hide soft-keyboard & exec callback
-                    mCallback.onShowingRefreshed(false);
+                    mInternalCallback.onShowingRefreshed(false);
                 }
             } else {
                 throw new IllegalStateException("onCreate(..) not called");
@@ -246,7 +254,7 @@ public class SoftKeyboardListener {
                     }
                 } else {
                     //nothing focused - hide soft-keyboard & exec callback
-                    mCallback.onShowingRefreshed(false);
+                    mInternalCallback.onShowingRefreshed(false);
                 }
             } else {
                 throw new IllegalStateException("onCreate(..) not called");
