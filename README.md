@@ -1,13 +1,13 @@
 # AndroidSoftKeyboardListener
-a detector for the android's software keyboard's showing status
+a detector for the android software keyboard's showing status. this implementation does not rely on window-size change. it uses edit-text focus & keyboard-close-detection. it seems to be behaving nicely with multi-windows as well.
 
-  
    
-#### to try it yourself you can either clone the repo or copy SoftKeyboardListener.java & ITracker.java & TrackedEditText.java into an existing android project
-
-this repository is a usage-sample
+#### to try it yourself you can either clone the repo or copy SoftKeyboardListener.java & ITracker.java & TrackedEditText.java (default edit-text augmented by a trivial interface) into an existing android project
 
 ---
+this repository is a usage-sample
+---
+
 ##### copied from the SoftKeyboardListener.java doc
 ```
 /**
