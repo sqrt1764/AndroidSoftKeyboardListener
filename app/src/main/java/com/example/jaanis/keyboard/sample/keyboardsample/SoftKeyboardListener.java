@@ -160,7 +160,7 @@ public class SoftKeyboardListener {
      * method will hide the soft-keyboard if it is currently working with a tracked view
      */
     public void hideKeyboard() {
-        mDefaultFocusView.requestFocus();
+        onBackPressedOnKeyboard();
     }
 
     ////////////
@@ -195,7 +195,7 @@ public class SoftKeyboardListener {
         }
 
         setImeVisibility(false);
-        hideKeyboard();
+        mDefaultFocusView.requestFocus();
     }
 
     private ITracker mITracker = new ITracker() {
