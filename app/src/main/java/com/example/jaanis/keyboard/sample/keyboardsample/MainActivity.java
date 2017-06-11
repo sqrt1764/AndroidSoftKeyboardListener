@@ -6,14 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
-    private SoftKeyboardListener mKeyboardListener
-            = new SoftKeyboardListener(
-            new SoftKeyboardListener.Callback() {
-                @Override
-                public void onShowingRefreshed(boolean isShowing) {
-                    tv0.setText("keyboard showing: " + isShowing);
-                }
-            });
+    private SoftKeyboardListener mKeyboardListener = new SoftKeyboardListener();
 
     private TextView tv0;
     private TrackedEditText et0;
@@ -40,6 +33,18 @@ public class MainActivity extends AppCompatActivity {
 
         mKeyboardListener.addTracking(et0);
         mKeyboardListener.addTracking(et1);
+
+        mKeyboardListener.setCallback(new SoftKeyboardListener.Callback() {
+            @Override
+            public void onShowingRefreshed(boolean isShowing) {
+                tv0.setText("keyboard showing: " + isShowing);
+            }
+
+            @Override
+            public void onInputMethodManagedFailedToCooperate() {
+
+            }
+        });
     }
 
     @Override

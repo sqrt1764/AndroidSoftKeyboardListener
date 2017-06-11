@@ -8,12 +8,15 @@ import android.os.ResultReceiver;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * a keyboard listener that functions relying on customized edit-texts & their focus-state.<br>
@@ -48,32 +51,30 @@ import java.util.List;
  *  if it is called without a delay)</span>
  */
 public class SoftKeyboardListener {
-
     private Callback mInternalCallback = new Callback() {
         @Override
         public void onShowingRefreshed(boolean isShowing) {
             mIsShowing = isShowing;
-            mCallback.onShowingRefreshed(mIsShowing);
+            if (mCallback != null) {
+                mCallback.onShowingRefreshed(mIsShowing);
+            }
+        }
+
+        @Override
+        public void onInputMethodManagedFailedToCooperate() {
+            if (mCallback != null) {
+                mCallback.onInputMethodManagedFailedToCooperate();
+            }
         }
     };
     private Callback mCallback;
 
     private InputMethodManager mImm;
     private Handler mHandler;
-    private List<View> mTrackedViews = new ArrayList<>();
+    private Set<View> mTrackedViews = new HashSet<>();
     private View mDefaultFocusView = null;
     private ResultReceiver mShowHideIMEResultReceiver = null;
     private boolean mIsShowing = false;
-
-    /**
-     * @param callback callback you want executed when the showing refreshes/changes
-     */
-    public SoftKeyboardListener(Callback callback) {
-        if (callback == null) {
-            throw new IllegalArgumentException();
-        }
-        mCallback = callback;
-    }
 
     /**
      * this method initializes the keyboard listener.
@@ -120,6 +121,16 @@ public class SoftKeyboardListener {
 //    }
 
     /**
+     * @param callback callback you want executed when the showing refreshes/changes
+     */
+    public void setCallback(Callback callback) {
+        if (callback == null) {
+            throw new IllegalArgumentException();
+        }
+        mCallback = callback;
+    }
+
+    /**
      * method adds the specified view to be tracked by this listener. can add multiple
      * @param view track this
      */
@@ -160,7 +171,8 @@ public class SoftKeyboardListener {
      * method will hide the soft-keyboard if it is currently working with a tracked view
      */
     public void hideKeyboard() {
-        mDefaultFocusView.requestFocus();
+        Log.d("SoftKeyboardListener", "hideKeyboard");
+        onBackPressedOnKeyboard();
     }
 
     ////////////
@@ -190,12 +202,12 @@ public class SoftKeyboardListener {
 
         View focusedView = findFocusedView();
         if (focusedView == null) {
-            Log.w("SoftKeyboardListener", "wut? how is this possible?");
+            Log.w("SoftKeyboardListener", "wut focusedView==null? how is this possible?");
             return;
         }
 
         setImeVisibility(false);
-        hideKeyboard();
+        mDefaultFocusView.requestFocus();
     }
 
     private ITracker mITracker = new ITracker() {
@@ -212,9 +224,34 @@ public class SoftKeyboardListener {
         public void onFocusChange(View v, boolean hasFocus) {
             if (hasFocus) {
                 onTrackedViewGainedFocus();
+            } else {
+                triggerLostFocusCheck();
+            }
+        }
+
+        @Override
+        public void onEditorAction(int actionId) {
+            int result = actionId & EditorInfo.IME_MASK_ACTION;
+            if (result == EditorInfo.IME_ACTION_DONE ||
+                    result == EditorInfo.IME_ACTION_SEARCH) {
+                hideKeyboard();
             }
         }
     };
+
+    private void triggerLostFocusCheck() {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("SoftKeyboardListener", "triggerLostFocusCheck");
+                View focusedView = findFocusedView();
+                if (focusedView == null) {
+                    //focus no longer is on one of the tracked views -> close the keyboard
+                    setImeVisibility(false);
+                }
+            }
+        }, 100);
+    }
 
     ///////////
 
@@ -227,6 +264,7 @@ public class SoftKeyboardListener {
                     boolean show = mImm.showSoftInput(focusedView, 0, mShowHideIMEResultReceiver);
                     if (!show) {
                         Log.w("SoftKeyboardListener", "mShowImeRunnable RETURNED FALSE");
+                        mInternalCallback.onInputMethodManagedFailedToCooperate();
                     }
                 } else {
                     //nothing focused - hide soft-keyboard & exec callback
@@ -244,13 +282,13 @@ public class SoftKeyboardListener {
         } else {
             mHandler.removeCallbacks(mShowImeRunnable);
 
-            View focusedView = findFocusedView();
             if (mImm != null) {
-                if (focusedView != null) {
+                if (mDefaultFocusView != null) {
                     boolean hide = mImm.hideSoftInputFromWindow(
-                            focusedView.getWindowToken(), 0, mShowHideIMEResultReceiver);
+                            mDefaultFocusView.getWindowToken(), 0, mShowHideIMEResultReceiver);
                     if (!hide) {
                         Log.w("SoftKeyboardListener", "hideSoftInputFromWindow RETURNED FALSE");
+                        mInternalCallback.onInputMethodManagedFailedToCooperate();
                     }
                 } else {
                     //nothing focused - hide soft-keyboard & exec callback
@@ -301,7 +339,8 @@ public class SoftKeyboardListener {
         }
     }
 
-    interface Callback {
+    public interface Callback {
         void onShowingRefreshed(boolean isShowing);
+        void onInputMethodManagedFailedToCooperate();
     }
 }

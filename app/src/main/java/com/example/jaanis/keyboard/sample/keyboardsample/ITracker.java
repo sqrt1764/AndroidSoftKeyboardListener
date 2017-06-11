@@ -9,11 +9,19 @@ public interface ITracker {
     }
 
     /**
-     * @param event keyevent
+     * @param event key event
      * @return `true` if the event was handled & should not be propagated
      */
     boolean onKeyPreIme(KeyEvent event);
 
-    //todo
+    /**
+     * @param v        view this happened to
+     * @param hasFocus new focus-state
+     */
     void onFocusChange(View v, boolean hasFocus);
+
+    /**
+     * @param actionId id received in matching view's method
+     */
+    void onEditorAction(int actionId);
 }
